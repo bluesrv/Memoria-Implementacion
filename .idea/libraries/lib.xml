@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/DTNConsoleConnection.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/ECLA.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lombok.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

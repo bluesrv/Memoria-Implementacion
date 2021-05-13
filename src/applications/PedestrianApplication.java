@@ -1,13 +1,13 @@
 package applications;
 
-import blockchain.main.Device;
-import blockchain.main.Identity;
-import blockchain.main.ProofOfRouting;
+import blockchain2.device.Device;
+import blockchain2.device.Identity;
+import blockchain2.device.IdentityFactory;
+import blockchain2.primitives.ProofOfRouting;
 import core.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.util.List;
 
 public class PedestrianApplication extends Application {
 
@@ -32,7 +32,9 @@ public class PedestrianApplication extends Application {
 
     public void addNewDevice(DTNHost host) {
         try {
-            Identity identity = new Identity(this.encryptor);
+            Identity identity = new IdentityFactory()
+                    .withAlgorithm(this.encryptor)
+                    .getIdentity();
             Device device = new Device(host.toString(), identity);
             deviceHashMap.put(host.toString(), device);
         } catch (NoSuchAlgorithmException e) {
