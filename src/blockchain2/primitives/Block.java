@@ -1,6 +1,6 @@
 package blockchain2.primitives;
 
-import blockchain.main.StringUtil;
+import blockchain2.crypto.CryptoUtils;
 import blockchain2.merkle.MerkleHash;
 import blockchain2.merkle.MerkleNode;
 import blockchain2.merkle.MerkleProofHash;
@@ -28,8 +28,8 @@ public class Block {
     }
 
     public String calculateHash() {
-        final String calculatedHash = StringUtil.applySha256(
-                StringUtil.hashToHex(
+        final String calculatedHash = CryptoUtils.applySha256(
+                CryptoUtils.hashToHex(
                         MerkleHash.concatenate(
                                 MerkleHash.concatenate(root.getHash().getValue(), Long.toString(timeStamp).getBytes()),
                                 previousHash.getBytes()
