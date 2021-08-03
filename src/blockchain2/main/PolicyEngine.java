@@ -1,6 +1,10 @@
 package blockchain2.main;
 
+import blockchain2.consensus.ConsensusProtocol;
+import blockchain2.consensus.HoneyBadger.QueuingHoneyBadger;
 import blockchain2.crypto.CryptoProvider;
+import blockchain2.merkle.MerkleHash;
+import blockchain2.primitives.Blockchain;
 import blockchain2.primitives.Transaction;
 import blockchain2.crypto.CryptoUtils;
 import blockchain2.device.Device;
@@ -35,17 +39,31 @@ public class PolicyEngine {
         }
     }
 
-    public static boolean handleTransaction(final Message message,
+    public static void handleTransaction(final Message message,
                                          final Device device,
                                          final DTNHost host,
-                                         final TransactionPool txnPool) throws SignatureException, InvalidKeyException {
+                                         final ConsensusProtocol consensusProtocol) throws SignatureException, InvalidKeyException {
         final Transaction txn = (Transaction) message.getProperty("txn");
-        final boolean shouldAdd = !txnPool.transactionExists(txn) && txn.validateTransaction(device.getCryptoProvider());
+        final boolean shouldAdd = txn.validateTransaction(device.getCryptoProvider());
         if (shouldAdd) {
             broadcastTransaction(txn, host);
-            return txnPool.addTransaction(txn);
+            consensusProtocol.addTransaction(txn);
         }
-        return false;
+    }
+
+    public static boolean validateIsNewTransaction(final Message message, final Blockchain blockchain){
+        final Transaction transaction = (Transaction) message.getProperty("txn");
+        if (transaction.getTimestamp() < blockchain.getBlockchain().get(0).getTimeStamp()) {
+            return false;
+        }
+        final String txnHash = transaction.getTransactionId();
+        return blockchain.getBlockchain()
+                .stream()
+                .noneMatch(
+                        block -> block.getTxnList()
+                                .stream()
+                                .noneMatch(txn -> txn.getTransactionId().equals(txnHash))
+                );
     }
 
     private static boolean isReceiverHost(final PublicKey receiverId, final Device device) {

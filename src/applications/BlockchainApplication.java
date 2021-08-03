@@ -106,7 +106,7 @@ public class BlockchainApplication extends Application {
             this.minApprovals = settings.getInt(BLOCKCHAIN_MINAPPROVALS);
         }
         this.rng = new Random(this.seed);
-        this.bc = new Blockchain(this.blocks4Genesis, this.txnsThreshold);
+        this.bc = new Blockchain(this.blocks4Genesis);
         this.cryptoProvider = new CryptoProvider(this.encryptor);
         this.identityFactory = new IdentityFactory(cryptoProvider);
         super.setAppID(APP_ID);
@@ -152,15 +152,15 @@ public class BlockchainApplication extends Application {
                 }
                 break;
             case "txnBroadcast":
-                final boolean shouldInvokeConsensusProtocol = PolicyEngine.handleTransaction(msg,
-                        this.device,
-                        host,
-                        this.bc.getTransactionPool());
-                if(shouldInvokeConsensusProtocol) this.consensus.handleTransactionThreshold();
+                if (PolicyEngine.validateIsNewTransaction(msg, this.bc)){
+                    PolicyEngine.handleTransaction(msg, this.device, host, this.bc.getTransactionPool());
+                }
                 break;
             case "protocol":
-                consensus.handleInnerMessage();
+                consensus.handleInnerMessage(msg);
                 break;
+            case "block":
+                PolicyEngine.handleBlock(msg, this.bc, this.device, host);
         }
 
         return msg;

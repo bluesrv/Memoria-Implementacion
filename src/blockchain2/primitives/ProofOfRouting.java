@@ -55,7 +55,7 @@ public class ProofOfRouting {
     }
 
     /* Verifies step by step if each Id corresponds to the signature */
-    public Boolean verify(final Device verifyingDevice) throws SignatureException, InvalidKeyException {
+    public Boolean verify(final CryptoProvider cryptoProvider) throws SignatureException, InvalidKeyException {
         if (this.participantsTable.isEmpty()) {
             return false;
         }
@@ -66,7 +66,7 @@ public class ProofOfRouting {
             accumulatedVerification = accumulatedVerification && localVerify(index == 0 ? ProofOfRouting.keyword : this.signatures.get(index - 1),
                     this.signatures.get(index),
                     participants.get(index),
-                    verifyingDevice.getCryptoProvider());
+                    cryptoProvider);
         }
         return accumulatedVerification;
     }

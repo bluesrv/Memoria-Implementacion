@@ -10,13 +10,11 @@ import java.util.Optional;
 public class Blockchain {
     private final Integer resumeBlockThreshold;
     private final List<Block> blockchain;
-    private final TransactionPool transactionPool;
     private final ResumeBlock resumeBlock;
 
-    public Blockchain (final Integer resumeBlockThreshold, final Integer txnThreshold) {
+    public Blockchain (final Integer resumeBlockThreshold) {
         this.blockchain = new ArrayList<>();
         this.resumeBlockThreshold = resumeBlockThreshold;
-        this.transactionPool = new TransactionPool(txnThreshold);
         this.resumeBlock = new ResumeBlock();
     }
 
@@ -24,7 +22,6 @@ public class Blockchain {
         this.blockchain = blockchain.getBlockchain();
         this.resumeBlockThreshold = blockchain.resumeBlockThreshold;
         this.resumeBlock = blockchain.resumeBlock;
-        this.transactionPool = blockchain.transactionPool;
     }
 
     public void addBlock(final Block block) {
