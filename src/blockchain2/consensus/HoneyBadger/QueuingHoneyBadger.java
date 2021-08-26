@@ -17,9 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 @Getter
 public class QueuingHoneyBadger implements ConsensusProtocol {
@@ -27,12 +25,12 @@ public class QueuingHoneyBadger implements ConsensusProtocol {
     private final Device device;
     private final DTNHost host;
     private final Map<String, HoneyBadger> sessions;
-    @Setter private int contributionSize;
+    @Setter private boolean isValidatorNode = false;
+    private static final int contributionSplitSize = 64;
 
-    public QueuingHoneyBadger(final int txnThreshold, final int contributionSize, final Device device, final DTNHost host){
-        this.txnPool = new TransactionPool(txnThreshold);
+    public QueuingHoneyBadger(final Device device, final DTNHost host){
+        this.txnPool = new TransactionPool();
         this.sessions = new HashMap<>();
-        this.contributionSize = contributionSize;
         this.device = device;
         this.host = host;
     }
@@ -40,13 +38,7 @@ public class QueuingHoneyBadger implements ConsensusProtocol {
     @Override
     public void addTransaction(Transaction txn) {
         if (!txnPool.transactionExists(txn)) {
-            final boolean shouldCreateContribution = txnPool.addTransaction(txn);
-            if (shouldCreateContribution) {
-                final Contribution contribution = generateContribution(txnPool);
-                final String sessionId = UUID.randomUUID().toString();
-                final HoneyBadger session = new HoneyBadger();
-                this.sessions.put(sessionId, session);
-            }
+            txnPool.addTransaction(txn);
         }
     }
 
@@ -78,7 +70,7 @@ public class QueuingHoneyBadger implements ConsensusProtocol {
     private Contribution generateContribution(final TransactionPool txnPool) {
         final List<Transaction> contributionList = new ArrayList<>();
         Collections.shuffle(txnPool.getTxns());
-        contributionList.addAll(txnPool.getTxns().subList(0, contributionSize));
+        contributionList.addAll(txnPool.getTxns().subList(0, contributionSplitSize));
         return Contribution.builder()
                 .contribution(contributionList)
                 .contributionId(UUID.randomUUID().toString())

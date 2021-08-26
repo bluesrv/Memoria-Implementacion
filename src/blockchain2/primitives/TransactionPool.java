@@ -4,20 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionPool {
-    private List<Transaction> txns;
-    private final int TRANSACTION_THRESHOLD;
+    private final List<Transaction> txns;
 
-    public TransactionPool(int threshold) {
+    public TransactionPool() {
         this.txns = new ArrayList<>();
-        this.TRANSACTION_THRESHOLD = threshold;
     }
 
-    public boolean addTransaction(Transaction txn) {
+    public void addTransaction(final Transaction txn) {
         this.txns.add(txn);
-        return this.txns.size() >= TRANSACTION_THRESHOLD;
     }
 
-    public boolean transactionExists(Transaction txn) {
+    public boolean transactionExists(final Transaction txn) {
         for(final Transaction t : this.txns) {
             if (t.equals(txn)) return true;
         }
@@ -30,5 +27,9 @@ public class TransactionPool {
 
     public List<Transaction> getTxns() {
         return txns;
+    }
+
+    public void removeTransaction(final Transaction txn) {
+        txns.remove(txn);
     }
 }

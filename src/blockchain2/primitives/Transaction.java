@@ -46,6 +46,10 @@ public class Transaction {
         return true;
     }
 
+    public boolean equals(final Transaction txn){
+        return this.transactionId.equals(txn.getTransactionId());
+    }
+
     private String calculateHash() {
         return CryptoUtils.applySha256(
                 String.join("", this.transmision.getSignatures()) + String.valueOf(timestamp)

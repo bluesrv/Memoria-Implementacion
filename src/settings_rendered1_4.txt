@@ -1,0 +1,140 @@
+
+#
+# Autor: Erika Rosas
+# Settings for the simulation of a cluster based disaster scenario
+#
+
+## Scenario settings
+Scenario.name = san_francisco_scenario
+Scenario.simulateConnections = true
+Scenario.updateInterval = 1
+# 43k ~= 12h
+Scenario.endTime = 80k
+
+firstinterface.type = SimpleBroadcastInterface
+# transmit speed of 2 Mbps = 250kBps
+firstinterface.transmitSpeed = 250k
+firstinterface.transmitRange = 10
+
+Scenario.networkSeed = 6477208
+MovementModel.rngSeed = 6339674
+MapBasedMovement.valpo = false
+
+MetricProtocol.maximoNormalizar = 400
+MetricProtocol.ventanaHistoria = 25000
+MetricProtocol.tamanoVentanaContextos = 10000
+MetricProtocol.alpha = 0.2
+Group.tiempoCambioRouter = 5000
+Optimization.parallel = false
+
+
+Scenario.nrofHostGroups = 5
+
+# common settings for all groups
+Group.movementModel = ClusterMovement
+Group.router = EpidemicRouter
+Group.transmitRange = 100
+btInterface.transmitSpeed =100k
+Group.bufferSize = 512M
+Group.waitTime = 0, 60
+#All nodes have the firstinterface inteface
+Group.nrofInterfaces = 1
+Group.interface1 = firstinterface
+# walking speeds
+Group.speed = 0.5, 1.5
+Group.msgTtl = 360
+
+Group.nrofHosts = 192
+Group.nrofApplications = 0
+
+Group.nrofCopies = 45
+Group.metaRouterKeepPreviousProperty= true,
+Group.metaRouterCarrier = EpidemicRouter
+Group.metaRouterCluster = EpidemicRouter
+Group.metrica = TiemposMetrica
+Group.MetaRouterCambiarRouters = true
+
+
+
+
+
+## Message creation parameters 
+# How many event generators
+Events.nrof = 1
+# Class of the first event generator
+Events1.class = MessageEventGenerator
+# (following settings are specific for the MessageEventGenerator class)
+# Creation interval in seconds (one new message every 25 to 35 seconds)
+Events1.interval = 120, 120
+# Message sizes (50kB - 150kB)
+Events1.size = 2500k
+# range of message source/destination addresses
+Events1.hosts = 0, 191
+# Message ID prefix
+Events1.prefix = M
+Events1.eventSeed = 1864168
+
+
+## Movement model settings
+# seed for movement models' pseudo random number generator (default = 0)
+MovementModel.rngSeed = 6339674
+# World's size for Movement Models without implicit size (width, height; meters)
+MovementModel.worldSize = 55500, 50400
+# How long time to move hosts in the world before real simulation
+MovementModel.warmup = 1000
+
+# how many reports to load
+Report.nrofReports = 2
+# length of the warm up period (simulated seconds)
+Report.warmup = 0
+# default directory of reports (can be overridden per Report with output setting)
+Report.reportDir = /tmp/tmpAFdbPXtheone/
+# Report classes to load
+Report.report1 = MessageStatsReport
+Report.report2 = FEnergia
+Report.report3 = ValoresDelivery
+Report.report4 = ValoresOverhead
+Report.report5 = PromedioNotasTiempo
+Report.report6 = RouterTiempoPorNodo
+Report.report7 = BufferFree
+
+## Optimization settings -- these affect the speed of the simulation
+## see World class for details.
+#Optimization.connectionAlg = 2
+#Optimization.cellSizeMult = 5
+#Optimization.randomizeUpdateOrder = true
+
+
+## GUI settings
+
+# GUI underlay image settings
+#GUI.UnderlayImage.fileName = data/helsinki_underlay.png
+# Image offset in pixels (x, y)
+#GUI.UnderlayImage.offset = 64, 20
+# Scaling factor for the image
+#GUI.UnderlayImage.scale = 4.75
+# Image rotation (radians)
+#GUI.UnderlayImage.rotate = -0.015
+
+# how many events to show in the log panel (default = 30)
+#GUI.EventLogPanel.nrofEvents = 30
+# Regular Expression log filter (see Pattern-class from the Java API for RE-matching details)
+#GUI.EventLogPanel.REfilter = .*p[1-9]<->p[1-9]$
+
+Group1.groupID = ID1 
+Group1.clusterCenter = 9228,33523 
+Groups1.nrofHosts = 40 
+Group2.groupID = ID2 
+Group2.clusterCenter = 3294,38888 
+Groups2.nrofHosts = 40 
+Group3.groupID = ID3 
+Group3.clusterCenter = 4305,35292 
+Groups3.nrofHosts = 40 
+Group4.groupID = ID4 
+Group4.clusterCenter = 9583,38434 
+Groups4.nrofHosts = 40 
+Group5.groupID = ID5 
+Group5.nrofHost = 32 
+Group5.movementModel = ClusterToCluster 
+Group5.waitTime = 0, 600 
+Group5.bufferSize = 1000M 

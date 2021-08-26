@@ -8,7 +8,6 @@ import blockchain2.device.Identity;
 import blockchain2.device.IdentityFactory;
 import blockchain2.exceptions.CorruptedProofOfRoutingException;
 import blockchain2.main.PolicyEngine;
-import blockchain2.primitives.TransactionPool;
 import core.Application;
 import core.DTNHost;
 import core.Message;
@@ -23,6 +22,7 @@ import lombok.SneakyThrows;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -46,20 +46,23 @@ public class BlockchainApplication extends Application {
     private String	encryptor = "RSA";
     private double  lastMsg = 0;
     private double	interval = 500;
+    private double  validatorsCount = 16;
+    private double  epochInterval = 1800;
+    private double  validatorsEpochs = 5;
+    private int     epoch = 0;
     private boolean passive = false;
     private int		seed = 0;
     private int		destMin = 0;
     private int		destMax = 1;
     private int		msgSize = 1;
-    private int		txnsThreshold = 64;
     private int     blocks4Genesis = 10;
     private double  validatorPercentage = 0.3;
     private int     minApprovals = 7;
     private String  consensusProtocol = "HoneyBadgerBFT";
     private Random  rng;
 
-    private static final Map<String, Integer> groupIntegrants = new HashMap<>();
-    private static final Map<String, PublicKey> publicKeys = new HashMap<>();
+    public static final Map<String, List<String>> validatorsPerGroup = new HashMap<>();
+    public static final Map<String, PublicKey> publicKeys = new HashMap<>();
     private ConsensusProtocol consensus;
     private Blockchain bc;
     private Device device;
@@ -86,9 +89,6 @@ public class BlockchainApplication extends Application {
             int[] destination = settings.getCsvInts(BLOCKCHAIN_DEST_RANGE,2);
             this.destMin = destination[0];
             this.destMax = destination[1];
-        }
-        if (settings.contains(BLOCKCHAIN_TXNS)) {
-            this.txnsThreshold = settings.getInt(BLOCKCHAIN_TXNS);
         }
         if (settings.contains(BLOCKCHAIN_BLOCKS)) {
             this.blocks4Genesis = settings.getInt(BLOCKCHAIN_BLOCKS);
@@ -121,11 +121,13 @@ public class BlockchainApplication extends Application {
         this.destMin = a.getDestMin();
         this.seed = a.getSeed();
         this.msgSize = a.getMsgSize();
-        this.txnsThreshold = a.getTxnsThreshold();
         this.blocks4Genesis = a.getBlocks4Genesis();
         this.validatorPercentage = a.getValidatorPercentage();
         this.consensusProtocol = a.getConsensusProtocol();
         this.minApprovals = a.getMinApprovals();
+        this.epoch = a.getEpoch();
+        this.epochInterval = a.epochInterval;
+        this.validatorsEpochs = a.validatorsEpochs;
         this.bc = a.getBc();
         this.cryptoProvider = a.getCryptoProvider();
         this.identityFactory = getIdentityFactory();
@@ -201,8 +203,8 @@ public class BlockchainApplication extends Application {
         this.device = device;
         publicKeys.put(host.toString(), device.getPublicKey());
         final String groupId = getGroupId(host);
-        final Integer count = (groupIntegrants.containsKey(groupId) ? groupIntegrants.get(groupId) : 0) + 1;
-        groupIntegrants.put(groupId, count);
+        final Integer count = (groupMembersCount.getOrDefault(groupId, 0)) + 1;
+        groupMembersCount.put(groupId, count);
         if (consensusProtocol.equals("PBFT")) consensus = new PBFT(txnsThreshold, minApprovals, encryptor, count);
         else{
             consensus = new PBFT(count);
